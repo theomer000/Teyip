@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retro Teyp Stüdyo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d0d0d;font-family:'Share Tech Mono',monospace;color:#ccc;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding-bottom:40px;-webkit-user-select:none;user-select:none}
+.title{font-family:'Orbitron',sans-serif;font-size:clamp(1rem,4vw,1.8rem);font-weight:900;letter-spacing:.3em;color:#ffb800;text-shadow:0 0 20px #ffb800;margin:20px 0 4px;text-align:center}
+.sub{font-size:.7rem;color:#444;letter-spacing:.2em;margin-bottom:16px;text-align:center}
+
+.mode-switch{display:flex;gap:0;margin-bottom:14px;background:#111;border-radius:20px;padding:3px;border:1px solid #2a2a2a}
+.mode-btn{padding:7px 22px;border:none;border-radius:18px;background:transparent;color:#444;font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;letter-spacing:.15em;cursor:pointer;transition:all .25s}
+.mode-btn.active{background:linear-gradient(135deg,#ffb800,#ff6600);color:#1a1a1a;box-shadow:0 0 16px rgba(255,184,0,.5)}
+.mode-btn.active.radio-on{background:linear-gradient(135deg,#00ff88,#00aa55);box-shadow:0 0 16px rgba(0,255,136,.5)}
+.scene{perspective:1000px;padding:10px 0}
+.boombox{width:min(560px,95vw);transform:rotateX(10deg);transform-style:preserve-3d;transition:transform .4s ease}
+.chassis{background:linear-gradient(160deg,#e2e2e2,#b0b0b0 40%,#c8c8c8 60%,#909090);border-radius:18px;padding:12px;box-shadow:0 30px 70px rgba(0,0,0,.85),8px 8px 0 #686868,16px 16px 0 #565656;border:1px solid #aaa;position:relative}
+.handle{position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:200px;height:34px;border:5px solid #888;border-bottom:none;border-radius:50px 50px 0 0;background:linear-gradient(to right,#aaa,#ccc,#aaa)}
+.top-row{display:flex;gap:6px;align-items:center;margin-bottom:10px;padding:6px 8px;background:linear-gradient(to bottom,#b4b4b4,#969696);border-radius:8px}
+.btns{display:flex;gap:3px}
+.tb{width:22px;height:16px;border-radius:3px;border:none;cursor:pointer;font-size:9px;box-shadow:0 2px 4px rgba(0,0,0,.4)}
+.tb:active{transform:translateY(1px)}
+.tbg{background:linear-gradient(to bottom,#5a5,#393)}
+.tbr{background:linear-gradient(to bottom,#a55,#733);color:#fff}
+.tbs{background:linear-gradient(to bottom,#aaa,#888)}
+.tbb{background:linear-gradient(to bottom,#4a4a7a,#333)}
+.freq{flex:1;height:34px;background:linear-gradient(to bottom,#d4c070,#c8a84b);border-radius:4px;border:1px solid #a07030;position:relative;overflow:hidden}
+.freq-scale{position:absolute;top:2px;left:4px;right:4px;font-size:6px;color:#3a2a00;display:flex;flex-direction:column;gap:2px}
+.frow{display:flex;justify-content:space-between}
+.ndl{position:absolute;top:0;bottom:0;width:1.5px;background:#ff2200;box-shadow:0 0 4px #ff2200;left:60%;transition:left .8s ease}
+.dial{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ddd,#888);border:2px solid #666;box-shadow:2px 2px 5px rgba(0,0,0,.5);cursor:pointer;flex-shrink:0}
+.mid{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.spk{width:clamp(90px,20vw,125px);height:clamp(90px,20vw,125px);border-radius:50%;background:linear-gradient(145deg,#444,#1a1a1a);border:4px solid #777;box-shadow:inset 0 0 20px rgba(0,0,0,.9),0 4px 10px rgba(0,0,0,.5),0 0 0 5px #999,0 0 0 7px #777;position:relative;overflow:hidden;flex-shrink:0}
+.spk-g{position:absolute;inset:8px;border-radius:50%;background:repeating-radial-gradient(circle,#2a2a2a 0,#2a2a2a 1px,#111 1px,#111 4px)}
+.spk-c{position:absolute;inset:30%;border-radius:50%;background:radial-gradient(circle,#555,#1a1a1a);border:1px solid #333}
+.spk.pulse .spk-c{animation:pulse .25s ease-in-out infinite alternate}
+@keyframes pulse{to{transform:scale(1.08)}}
+.deck{flex:1;background:linear-gradient(to bottom,#c0c0c0,#a8a8a8);border-radius:10px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:inset 0 2px 6px rgba(0,0,0,.4)}
+.brand{font-family:'Orbitron',sans-serif;font-size:8px;font-weight:700;color:#333;letter-spacing:.2em;align-self:flex-start}
+.cwin{width:100%;height:64px;background:#111;border-radius:6px;border:2px solid #555;box-shadow:inset 0 0 12px rgba(0,0,0,.9);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.cwin.over{border-color:#00ff88 !important;box-shadow:inset 0 0 12px rgba(0,0,0,.9),0 0 24px rgba(0,255,136,.6) !important}
+.dhint{color:#2a2a2a;font-size:10px;text-align:center;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:3px}
+.dhint span:first-child{font-size:22px}
+.cloaded{display:none;width:92%;height:52px;background:linear-gradient(135deg,#1e1e1e,#141414);border-radius:4px;border:1px solid #333;align-items:center;justify-content:space-around;padding:4px 10px;position:relative}
+.cloaded.show{display:flex}
+.reel{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle,#555,#111);border:2px solid #555;position:relative}
+.reel::before{content:'';position:absolute;inset:3px;border-radius:50%;background:repeating-conic-gradient(#333 0deg,#333 30deg,#111 30deg,#111 60deg)}
+.reel.spin{animation:spin 1.2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tname{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:7px;color:#aaa;white-space:nowrap;font-family:'Orbitron',monospace;pointer-events:none;text-align:center}
+.model{font-size:6px;color:#666;letter-spacing:.1em;align-self:flex-end}
+.bot{display:flex;gap:8px;align-items:center;padding:7px 8px;background:linear-gradient(to bottom,#b4b4b4,#969696);border-radius:8px}
+.vknob{width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ddd,#666);border:2px solid #555;box-shadow:3px 3px 8px rgba(0,0,0,.5);position:relative;cursor:pointer;flex-shrink:0}
+.kdot{position:absolute;width:5px;height:5px;background:#ff6600;border-radius:50%;top:6px;left:50%;transform:translateX(-50%)}
+.vu{flex:1;height:34px;background:#0d0d0d;border-radius:4px;border:1px solid #222;display:flex;flex-direction:column;gap:2px;padding:3px;overflow:hidden}
+.vur{display:flex;gap:2px;flex:1}
+.vb{flex:1;border-radius:1px;background:#111;transition:background .06s}
+.vb.gr{background:#00ff88;box-shadow:0 0 4px #00ff88}
+.vb.am{background:#ffb800;box-shadow:0 0 4px #ffb800}
+.vb.rd{background:#ff3333;box-shadow:0 0 4px #ff3333}
+.shelf-wrap{width:min(600px,95vw);margin-top:20px;padding:0 10px}
+.shelf-title{font-family:'Orbitron',sans-serif;font-size:9px;color:#444;letter-spacing:.25em;text-align:center;margin-bottom:12px}
+.shelf{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+
+/* RADIO PANEL */
+.radio-wrap{width:min(600px,95vw);margin-top:20px;padding:0 10px;display:none}
+.radio-wrap.show{display:block}
+.radio-search{display:flex;gap:8px;margin-bottom:12px}
+.radio-search input{flex:1;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:6px;padding:10px 12px;color:#ccc;font-family:'Share Tech Mono',monospace;font-size:12px;outline:none}
+.radio-search input:focus{border-color:#00ff88;box-shadow:0 0 10px rgba(0,255,136,.2)}
+.radio-search button{padding:10px 18px;border:none;border-radius:6px;background:linear-gradient(to bottom,#2a7a5a,#1a5a3a);color:#4eff9e;font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;cursor:pointer}
+
+/* FAVORITE STATION CARD */
+.fav-stations-title{font-family:'Orbitron',sans-serif;font-size:9px;color:#ffb800;letter-spacing:.2em;margin-bottom:10px;text-align:center}
+.fav-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.fav-station{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#1a1505,#120f03);border:1px solid #3a2f00;border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .2s}
+.fav-station:hover{border-color:#ffb800;box-shadow:0 0 14px rgba(255,184,0,.25);transform:translateY(-1px)}
+.fav-station.now-playing{border-color:#00ff88;background:linear-gradient(135deg,#0a2418,#06180f);box-shadow:0 0 14px rgba(0,255,136,.3)}
+.fav-logo{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#2a2000,#1a1500);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:1px solid #3a2f00}
+.fav-info{flex:1;min-width:0}
+.fav-name{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:#ffd84d;letter-spacing:.06em}
+.fav-badge{font-size:7px;background:#ffb800;color:#1a1a1a;padding:2px 6px;border-radius:8px;letter-spacing:.05em}
+.fav-meta{font-size:9px;color:#665a30;margin-top:2px}
+.fav-play-icon{font-size:16px;color:#ffb800;flex-shrink:0}
+.fav-station.now-playing .fav-play-icon{color:#00ff88;animation:blink 1s infinite}
+.radio-genres{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;justify-content:center}
+.genre-chip{padding:5px 12px;border-radius:14px;background:#151515;border:1px solid #2a2a2a;color:#666;font-size:9px;letter-spacing:.08em;cursor:pointer;transition:all .15s}
+.genre-chip:hover{border-color:#ffb800;color:#ffb800}
+.genre-chip.active{background:#ffb800;color:#1a1a1a;border-color:#ffb800}
+.station-list{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto;padding-right:4px}
+.station-list::-webkit-scrollbar{width:5px}
+.station-list::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+.station-card{display:flex;align-items:center;gap:10px;background:#111;border:1px solid #222;border-radius:8px;padding:9px 12px;cursor:pointer;transition:all .15s}
+.station-card:hover{border-color:#00ff88;background:#161616}
+.station-card.now-playing{border-color:#00ff88;background:#0f1f17;box-shadow:0 0 14px rgba(0,255,136,.2)}
+.station-fav{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2a2a3a,#1a1a24);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;overflow:hidden}
+.station-fav img{width:100%;height:100%;object-fit:cover}
+.station-info{flex:1;min-width:0}
+.station-name{font-size:11px;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:bold}
+.station-meta{font-size:9px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.station-playing-icon{font-size:14px;color:#00ff88;flex-shrink:0;display:none}
+.station-card.now-playing .station-playing-icon{display:block;animation:blink 1s infinite}
+.radio-status{text-align:center;font-size:10px;color:#444;padding:20px;display:none}
+.radio-status.show{display:block}
+.radio-loading{display:inline-block;animation:spin 1s linear infinite}
+.card{width:118px;height:74px;border-radius:6px;background:linear-gradient(135deg,#1a1a2e,#12122a);border:2px solid #222;padding:7px 9px;cursor:grab;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.6);touch-action:none}
+.card:hover{transform:translateY(-3px) scale(1.03)}
+.card:active{cursor:grabbing}
+.card.dsrc{opacity:.35}
+.clabel{font-family:'Orbitron',sans-serif;font-size:8px;font-weight:700;color:var(--cc);text-shadow:0 0 8px var(--gc);letter-spacing:.1em;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.csong{font-size:8px;color:#888;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.creels{display:flex;align-items:center;justify-content:space-around}
+.cr{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle,#444,#111);border:1px solid #444;position:relative}
+.cr::before{content:'';position:absolute;inset:3px;border-radius:50%;background:repeating-conic-gradient(#2a2a2a 0deg,#2a2a2a 30deg,#0d0d0d 30deg,#0d0d0d 60deg)}
+.ctape{height:2px;flex:1;background:#111;margin:0 3px;border-radius:1px}
+.ucard{width:118px;height:74px;border-radius:6px;border:2px dashed #2a2a2a;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:#333;font-size:8px;letter-spacing:.1em;background:#0a0a0a;gap:3px;transition:all .2s;position:relative;overflow:hidden}
+.ucard:hover{border-color:#ffb800;color:#ffb800;box-shadow:0 0 18px rgba(255,184,0,.2)}
+.ucard input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.panel{width:min(560px,95vw);margin-top:14px;display:flex;flex-direction:column;gap:10px;padding:0 10px}
+.status{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:6px;padding:8px 12px;display:flex;align-items:center;gap:10px;font-size:10px}
+.sdot{width:8px;height:8px;border-radius:50%;background:#1a1a1a;flex-shrink:0;transition:all .3s}
+.sdot.play{background:#00ff88;box-shadow:0 0 8px #00ff88;animation:blink 1s infinite}
+.sdot.rdy{background:#ffb800;box-shadow:0 0 6px #ffb800}
+@keyframes blink{50%{opacity:.4}}
+.stxt{color:#444}
+.pw{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:6px;padding:10px 12px;display:none}
+.pw.show{display:block}
+.po{height:6px;background:#1a1a1a;border-radius:3px;cursor:pointer;overflow:hidden}
+.pi{height:100%;background:linear-gradient(to right,#ffb800,#ff6600);width:0%;border-radius:3px;box-shadow:0 0 8px rgba(255,184,0,.5);transition:width .15s}
+.pt{display:flex;justify-content:space-between;margin-top:4px;font-size:8px;color:#333}
+.vrow{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:12px}
+.vrow label{font-size:9px;color:#444;letter-spacing:.1em;min-width:55px}
+.vrow input[type=range]{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;outline:none;cursor:pointer}
+.vrow input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:radial-gradient(circle,#ddd,#888);border:2px solid #555;box-shadow:0 0 6px rgba(255,184,0,.5);cursor:grab}
+.vval{font-family:'Orbitron',monospace;font-size:11px;color:#ffb800;min-width:34px;text-align:right}
+.cbtns{display:flex;gap:8px;justify-content:center}
+.cbtn{padding:10px 20px;border:none;border-radius:6px;font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;letter-spacing:.15em;cursor:pointer;transition:all .15s;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.cbtn:active{transform:translateY(1px)}
+.cbtn.play{background:linear-gradient(to bottom,#2a7a2a,#1a5a1a);color:#4eff4e;border:1px solid #3a8a3a}
+.cbtn.stop{background:linear-gradient(to bottom,#7a2a2a,#5a1a1a);color:#ff6666;border:1px solid #8a3a3a}
+.cbtn.ej{background:linear-gradient(to bottom,#4a4a7a,#3a3a5a);color:#99f;border:1px solid #5a5a8a}
+#ghost{position:fixed;pointer-events:none;z-index:9999;display:none;width:118px;height:74px;border-radius:6px;background:linear-gradient(135deg,#1a1a2e,#12122a);border:2px solid #ffb800;padding:7px 9px;box-shadow:0 12px 30px rgba(0,0,0,.8);transform:rotate(4deg) scale(1.06);opacity:.88}
+</style>
+</head>
+<body>
+<div class="title">🎵 RETRO TEYP STÜDYOSİ</div>
+<div class="sub">SÜRÜKLE → YUVA'YA BIRAK → SES ÇALSIN</div>
+
+<div class="mode-switch">
+  <button class="mode-btn active" id="modeTapeBtn" onclick="switchMode('tape')">📼 TEYP</button>
+  <button class="mode-btn" id="modeRadioBtn" onclick="switchMode('radio')">📻 RADYO</button>
+</div>
+
+<div class="scene">
+<div class="boombox" id="bb">
+<div class="chassis">
+  <div class="handle"></div>
+  <div class="top-row">
+    <div class="btns">
+      <button class="tb tbs" onclick="seekBack()">⏮</button>
+      <button class="tb tbg" onclick="playAudio()">▶</button>
+      <button class="tb tbr" onclick="stopAudio()">⏹</button>
+      <button class="tb tbs" onclick="seekFwd()">⏭</button>
+      <button class="tb tbr" style="background:linear-gradient(to bottom,#e44,#c00)">⏺</button>
+      <button class="tb tbb" onclick="eject()">⏏</button>
+    </div>
+    <div class="freq">
+      <div class="freq-scale">
+        <div class="frow"><span>FM</span><span>88</span><span>92</span><span>96</span><span>100</span><span>104</span><span>108</span></div>
+        <div class="frow"><span>AM</span><span>530</span><span>700</span><span>900</span><span>1100</span><span>1300</span><span>1600</span></div>
+        <div class="frow"><span>SW</span><span>2.3</span><span>5</span><span>7</span><span>10</span><span>15</span><span>22</span></div>
+      </div>
+      <div class="ndl" id="ndl"></div>
+    </div>
+    <div class="dial"></div>
+    <div class="dial"></div>
+  </div>
+  <div class="mid">
+    <div class="spk" id="spkL"><div class="spk-g"></div><div class="spk-c"></div></div>
+    <div class="deck">
+      <div class="brand">PoXing®</div>
+      <div class="cwin" id="dz">
+        <div class="dhint" id="dhint"><span>📼</span><span>KASETİ BURAYA BIRAK</span></div>
+        <div class="cloaded" id="cl">
+          <div class="reel" id="rl"></div>
+          <div class="tname" id="tn">—</div>
+          <div class="reel" id="rr"></div>
+        </div>
+      </div>
+      <div class="model">PX-555BT • PORTABLE CASSETTE RECORDER</div>
+    </div>
+    <div class="spk" id="spkR"><div class="spk-g"></div><div class="spk-c"></div></div>
+  </div>
+  <div class="bot">
+    <div class="vknob"><div class="kdot" id="kdot"></div></div>
+    <div class="vu">
+      <div class="vur" id="vu1"></div>
+      <div class="vur" id="vu2"></div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="shelf-wrap" id="shelfWrap">
+  <div class="shelf-title">▸ KOLEKSİYON — sürükle & yuva'ya bırak veya tıkla</div>
+  <div class="shelf" id="shelf">
+    <div class="card" id="c0" style="--cc:#00ff88;--gc:rgba(0,255,136,.4)" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" data-name="GROOVE #1" data-song="SoundHelix Song 1">
+      <div class="clabel">GROOVE #1</div><div class="csong">SoundHelix Song 1</div>
+      <div class="creels"><div class="cr"></div><div class="ctape"></div><div class="cr"></div></div>
+    </div>
+    <div class="card" id="c1" style="--cc:#ff6600;--gc:rgba(255,102,0,.4)" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" data-name="FUNK #2" data-song="SoundHelix Song 2">
+      <div class="clabel">FUNK #2</div><div class="csong">SoundHelix Song 2</div>
+      <div class="creels"><div class="cr"></div><div class="ctape"></div><div class="cr"></div></div>
+    </div>
+    <div class="card" id="c2" style="--cc:#ff33cc;--gc:rgba(255,51,204,.4)" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" data-name="SOUL #3" data-song="SoundHelix Song 3">
+      <div class="clabel">SOUL #3</div><div class="csong">SoundHelix Song 3</div>
+      <div class="creels"><div class="cr"></div><div class="ctape"></div><div class="cr"></div></div>
+    </div>
+    <div class="card" id="c3" style="--cc:#3399ff;--gc:rgba(51,153,255,.4)" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" data-name="JAZZ #4" data-song="SoundHelix Song 4">
+      <div class="clabel">JAZZ #4</div><div class="csong">SoundHelix Song 4</div>
+      <div class="creels"><div class="cr"></div><div class="ctape"></div><div class="cr"></div></div>
+    </div>
+    <div class="ucard" id="uc">
+      <input type="file" accept="audio/*" id="fi">
+      <span style="font-size:20px">➕</span><span>KENDİ SESİNİ</span><span>EKLE</span>
+    </div>
+  </div>
+</div>
+
+<!-- RADIO PANEL -->
+<div class="radio-wrap" id="radioWrap">
+  <div class="radio-search">
+    <input type="text" id="radioSearchInput" placeholder="İstasyon, şehir veya tür ara... (örn: Power FM, jazz, Istanbul)" onkeydown="if(event.key==='Enter')searchStations()">
+    <button onclick="searchStations()">🔍 ARA</button>
+  </div>
+  <div class="fav-stations-title">⭐ FAVORİ İSTASYONLAR</div>
+  <div class="fav-list">
+    <div class="fav-station" onclick="playFavStation(this)" data-src="https://listen.powerapp.com.tr/powerturk/abr/powerturk/128/playlist.m3u8" data-name="POWER TÜRK FM">
+      <div class="fav-logo">⚡</div>
+      <div class="fav-info">
+        <div class="fav-name">POWER TÜRK FM</div>
+        <div class="fav-meta">Türkiye'nin Gücü • 128kbps</div>
+      </div>
+      <div class="fav-play-icon">▶</div>
+    </div>
+    <div class="fav-station" onclick="playFavStation(this)" data-src="https://trkvz-radyolar.ercdn.net/radyoenergy/playlist.m3u8" data-name="RADYO ENERJİ">
+      <div class="fav-logo">🔥</div>
+      <div class="fav-info">
+        <div class="fav-name">RADYO ENERJİ</div>
+        <div class="fav-meta">Hit Müzik • Türkiye</div>
+      </div>
+      <div class="fav-play-icon">▶</div>
+    </div>
+  </div>
+
+  <div class="radio-genres" id="radioGenres">
+    <div class="genre-chip active" data-genre="turkish" onclick="selectGenre(this,'turkish')">🇹🇷 Türkçe</div>
+    <div class="genre-chip" data-genre="pop" onclick="selectGenre(this,'pop')">Pop</div>
+    <div class="genre-chip" data-genre="rock" onclick="selectGenre(this,'rock')">Rock</div>
+    <div class="genre-chip" data-genre="jazz" onclick="selectGenre(this,'jazz')">Jazz</div>
+    <div class="genre-chip" data-genre="electronic" onclick="selectGenre(this,'electronic')">Elektronik</div>
+    <div class="genre-chip" data-genre="classical" onclick="selectGenre(this,'classical')">Klasik</div>
+    <div class="genre-chip" data-genre="news" onclick="selectGenre(this,'news')">Haber</div>
+  </div>
+  <div class="radio-status" id="radioStatus">İstasyonlar yükleniyor...</div>
+  <div class="station-list" id="stationList"></div>
+</div>
+
+<div class="panel">
+  <div class="status"><div class="sdot" id="sdot"></div><span class="stxt" id="stxt">Kaset yükleyin...</span></div>
+  <div class="pw" id="pw">
+    <div class="po" id="po"><div class="pi" id="pi"></div></div>
+    <div class="pt"><span id="tn2">0:00</span><span id="tt">0:00</span></div>
+  </div>
+  <div class="vrow">
+    <label>🔊 SES</label>
+    <input type="range" id="vs" min="0" max="600" value="80" oninput="setVol(this.value)">
+    <span class="vval" id="vv">80</span>
+  </div>
+  <div class="cbtns">
+    <button class="cbtn play" onclick="playAudio()">▶ OYNAT</button>
+    <button class="cbtn stop" onclick="stopAudio()">⏹ DURDUR</button>
+    <button class="cbtn ej" onclick="eject()">⏏ ÇIKAR</button>
+  </div>
+</div>
+
+<div id="ghost">
+  <div class="clabel" id="gl">—</div>
+  <div class="csong" id="gs">—</div>
+  <div class="creels"><div class="cr"></div><div class="ctape"></div><div class="cr"></div></div>
+</div>
+
+<script>
+// AUDIO
+const aud = new Audio();
+aud.crossOrigin = "anonymous";
+let actx, gain, anl, src, ready = false;
+let cur = null;
+let currentMode = 'tape';
+let isRadioStream = false;
+let currentStationCard = null;
+
+function initCtx() {
+  if (ready) return;
+  try {
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    gain = actx.createGain();
+    anl = actx.createAnalyser();
+    anl.fftSize = 32;
+    src = actx.createMediaElementSource(aud);
+    src.connect(gain); gain.connect(anl); anl.connect(actx.destination);
+    ready = true;
+  } catch(e) { console.warn(e); }
+}
+
+function applyVol(v) {
+  if (gain) gain.gain.value = v / 100;
+  else aud.volume = Math.min(1, v / 100);
+  rotKnob(v); styleSlider(v);
+}
+function setVol(v) {
+  v = +v;
+  document.getElementById('vv').textContent = v;
+  applyVol(v);
+}
+
+// VU
+const VN = 12;
+['vu1','vu2'].forEach(id => {
+  const r = document.getElementById(id);
+  for (let i = 0; i < VN; i++) { const b=document.createElement('div'); b.className='vb'; b.dataset.i=i; r.appendChild(b); }
+});
+(function loop() {
+  requestAnimationFrame(loop);
+  if (!anl) return;
+  const d = new Uint8Array(anl.frequencyBinCount);
+  anl.getByteFrequencyData(d);
+  const avg = d.reduce((a,b)=>a+b,0)/d.length;
+  const lv = Math.round((avg/255)*VN);
+  document.querySelectorAll('.vb').forEach(b => {
+    const i=+b.dataset.i;
+    b.className='vb'+(i<lv?(i<VN*.6?' gr':i<VN*.85?' am':' rd'):'');
+  });
+})();
+
+// NEEDLE
+let np=60,nd=1;
+setInterval(()=>{ np+=(Math.random()*3-1.5)*nd; if(np>88){np=88;nd=-1;}if(np<12){np=12;nd=1;} document.getElementById('ndl').style.left=np+'%'; },900);
+
+// KNOB
+function rotKnob(v) {
+  const a=(-130+(v/600)*260)*Math.PI/180;
+  const cx=14,cy=14,r=10;
+  const x=cx+r*Math.sin(a)-2.5, y=cy-r*Math.cos(a)-2.5;
+  const d=document.getElementById('kdot'); d.style.left=x+'px'; d.style.top=y+'px';
+}
+function styleSlider(v) {
+  const p=(v/600*100)+'%';
+  const s=document.getElementById('vs');
+  s.style.background=`linear-gradient(to right,#ffb800 ${p},#1a1a1a ${p})`;
+}
+rotKnob(80); styleSlider(80);
+
+// PLAYBACK
+function playAudio() {
+  if (!aud.src) { setSt('Önce kaset yükleyin!',''); return; }
+  initCtx();
+  if (actx && actx.state==='suspended') actx.resume();
+  aud.play().catch(e=>console.warn(e));
+  if (isRadioStream) {
+    setSt('📻 RADYO: '+(cur?cur.dataset.name:''),'play');
+  } else {
+    setSt('▶ ÇALIYOR: '+(cur?cur.dataset.name:''),'play');
+    document.getElementById('pw').classList.add('show');
+  }
+  document.getElementById('spkL').classList.add('pulse');
+  document.getElementById('spkR').classList.add('pulse');
+  document.getElementById('rl').classList.add('spin');
+  document.getElementById('rr').classList.add('spin');
+  applyVol(+document.getElementById('vs').value);
+}
+function stopAudio() {
+  aud.pause();
+  if (!isRadioStream) aud.currentTime=0;
+  if (isRadioStream) {
+    document.querySelectorAll('.station-card').forEach(c=>c.classList.remove('now-playing'));
+    document.querySelectorAll('.fav-station').forEach(s=>{ s.classList.remove('now-playing'); const i=s.querySelector('.fav-play-icon'); if(i) i.textContent='▶'; });
+    setSt(cur?'⏹ DURDU: '+cur.dataset.name:'Radyo seçin...','');
+  } else {
+    setSt(cur?'⏹ HAZIR: '+cur.dataset.name:'Kaset yükleyin...',cur?'rdy':'');
+  }
+  ['spkL','spkR'].forEach(id=>document.getElementById(id).classList.remove('pulse'));
+  ['rl','rr'].forEach(id=>document.getElementById(id).classList.remove('spin'));
+}
+function eject() {
+  isRadioStream = false;
+  document.querySelectorAll('.station-card').forEach(c=>c.classList.remove('now-playing'));
+  const fav = document.getElementById('favStation');
+  if (fav) fav.classList.remove('now-playing');
+  stopAudio(); aud.src=''; cur=null;
+  document.getElementById('cl').classList.remove('show');
+  document.getElementById('dhint').style.display='';
+  document.getElementById('tn').textContent='—';
+  document.getElementById('pw').classList.remove('show');
+  setSt('Kaset yükleyin...','');
+}
+aud.addEventListener('timeupdate',()=>{
+  const p=aud.duration?aud.currentTime/aud.duration:0;
+  document.getElementById('pi').style.width=(p*100)+'%';
+  document.getElementById('tn2').textContent=fmt(aud.currentTime);
+  document.getElementById('tt').textContent=fmt(aud.duration);
+});
+aud.addEventListener('ended',stopAudio);
+function fmt(s){if(!s||isNaN(s))return'0:00';return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');}
+document.getElementById('po').addEventListener('click',e=>{
+  if(!aud.duration)return;
+  const r=e.currentTarget.getBoundingClientRect();
+  aud.currentTime=((e.clientX-r.left)/r.width)*aud.duration;
+});
+function seekBack(){aud.currentTime=Math.max(0,(aud.currentTime||0)-10);}
+function seekFwd(){if(aud.duration)aud.currentTime=Math.min(aud.duration,(aud.currentTime||0)+10);}
+function setSt(txt,st){
+  document.getElementById('stxt').textContent=txt;
+  const d=document.getElementById('sdot'); d.className='sdot'+(st?' '+st:'');
+}
+
+// LOAD
+function loadCard(card) {
+  cur=card; aud.src=card.dataset.src; aud.load();
+  document.getElementById('tn').textContent=card.dataset.name||'';
+  document.getElementById('cl').classList.add('show');
+  document.getElementById('dhint').style.display='none';
+  document.getElementById('pw').classList.add('show');
+  setSt('⏩ YÜKLENDİ: '+card.dataset.name,'rdy');
+  const dz=document.getElementById('dz');
+  dz.style.borderColor='#00ff88'; dz.style.boxShadow='inset 0 0 12px rgba(0,0,0,.9),0 0 28px rgba(0,255,136,.7)';
+  setTimeout(()=>{dz.style.borderColor='';dz.style.boxShadow='';},700);
+  setTimeout(playAudio,350);
+}
+
+// CLICK on card
+document.getElementById('shelf').addEventListener('click',e=>{
+  const c=e.target.closest('.card');
+  if(c) loadCard(c);
+});
+
+// MOUSE DRAG — plain mousedown/mousemove/mouseup, no HTML5 drag API
+const dz = document.getElementById('dz');
+const ghost = document.getElementById('ghost');
+let mCard=null, mOffX=0, mOffY=0;
+
+function activateDrag(card, e) {
+  mCard=card; 
+  const r=card.getBoundingClientRect();
+  mOffX=e.clientX-r.left; mOffY=e.clientY-r.top;
+  document.getElementById('gl').textContent=card.dataset.name||'';
+  document.getElementById('gs').textContent=card.dataset.song||'';
+  ghost.style.display='block';
+  ghost.style.left=(e.clientX-mOffX)+'px';
+  ghost.style.top=(e.clientY-mOffY)+'px';
+  card.classList.add('dsrc');
+}
+function cleanDrag() {
+  if(mCard) mCard.classList.remove('dsrc');
+  ghost.style.display='none';
+  dz.classList.remove('over');
+  mCard=null;
+}
+
+document.addEventListener('mousemove',e=>{
+  if(!mCard)return;
+  ghost.style.left=(e.clientX-mOffX)+'px';
+  ghost.style.top=(e.clientY-mOffY)+'px';
+  const r=dz.getBoundingClientRect();
+  dz.classList.toggle('over',e.clientX>r.left&&e.clientX<r.right&&e.clientY>r.top&&e.clientY<r.bottom);
+});
+document.addEventListener('mouseup',e=>{
+  if(!mCard)return;
+  const r=dz.getBoundingClientRect();
+  if(e.clientX>r.left&&e.clientX<r.right&&e.clientY>r.top&&e.clientY<r.bottom) loadCard(mCard);
+  cleanDrag();
+});
+
+function bindCard(card) {
+  card.addEventListener('mousedown',e=>{
+    if(e.button!==0)return;
+    e.preventDefault();
+    activateDrag(card,e);
+  });
+  // TOUCH
+  card.addEventListener('touchstart',e=>{
+    const t=e.touches[0];
+    const r=card.getBoundingClientRect();
+    mCard=card; mOffX=t.clientX-r.left; mOffY=t.clientY-r.top;
+    document.getElementById('gl').textContent=card.dataset.name||'';
+    document.getElementById('gs').textContent=card.dataset.song||'';
+    ghost.style.display='block';
+    ghost.style.left=(t.clientX-mOffX)+'px'; ghost.style.top=(t.clientY-mOffY)+'px';
+    card.classList.add('dsrc');
+  },{passive:true});
+  card.addEventListener('touchmove',e=>{
+    if(!mCard)return;
+    e.preventDefault();
+    const t=e.touches[0];
+    ghost.style.left=(t.clientX-mOffX)+'px'; ghost.style.top=(t.clientY-mOffY)+'px';
+    const r=dz.getBoundingClientRect();
+    dz.classList.toggle('over',t.clientX>r.left&&t.clientX<r.right&&t.clientY>r.top&&t.clientY<r.bottom);
+  },{passive:false});
+  card.addEventListener('touchend',e=>{
+    if(!mCard)return;
+    const t=e.changedTouches[0];
+    const r=dz.getBoundingClientRect();
+    if(t.clientX>r.left&&t.clientX<r.right&&t.clientY>r.top&&t.clientY<r.bottom) loadCard(mCard);
+    cleanDrag();
+  },{passive:true});
+}
+
+document.querySelectorAll('.card').forEach(bindCard);
+
+// FILE UPLOAD
+const COLS=['#ff6600','#00ff88','#ff33cc','#3399ff','#ffff00','#ff0088','#00ccff','#ff9900'];
+let uIdx=0;
+document.getElementById('fi').addEventListener('change',e=>{
+  const file=e.target.files[0]; if(!file)return;
+  const url=URL.createObjectURL(file);
+  const name=file.name.replace(/\.[^/.]+$/,'').toUpperCase().slice(0,10);
+  const cc=COLS[uIdx%COLS.length]; const gc=cc+'55'; uIdx++;
+  const card=document.createElement('div');
+  card.className='card';
+  card.style.cssText=`--cc:${cc};--gc:${gc}`;
+  card.dataset.src=url; card.dataset.name=name; card.dataset.song=file.name;
+  card.innerHTML=`<div class="clabel">${name}</div><div class="csong">${file.name.slice(0,16)}...</div><div class="creels"><div class="cr"></div><div class="ctape"></div><div class="cr"></div></div>`;
+  card.addEventListener('click',()=>loadCard(card));
+  bindCard(card);
+  document.getElementById('shelf').insertBefore(card,document.getElementById('uc'));
+  loadCard(card);
+  e.target.value='';
+});
+
+// 3D TILT
+document.addEventListener('mousemove',e=>{
+  const rx=((e.clientY/window.innerHeight)-.5)*-14+10;
+  const ry=((e.clientX/window.innerWidth)-.5)*10;
+  document.getElementById('bb').style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`;
+});
+
+setSt('Kaset yükleyin...','');
+applyVol(80);
+
+// ══════════════════════════════════════════════
+//  RADIO MODE
+// ══════════════════════════════════════════════
+const RADIO_SERVERS = [
+  'https://de1.api.radio-browser.info',
+  'https://nl1.api.radio-browser.info',
+  'https://at1.api.radio-browser.info'
+];
+let radioServer = RADIO_SERVERS[0];
+
+function switchMode(mode) {
+  currentMode = mode;
+  const tapeBtn = document.getElementById('modeTapeBtn');
+  const radioBtn = document.getElementById('modeRadioBtn');
+  const shelfWrap = document.getElementById('shelfWrap');
+  const radioWrap = document.getElementById('radioWrap');
+
+  if (mode === 'tape') {
+    tapeBtn.classList.add('active'); tapeBtn.classList.remove('radio-on');
+    radioBtn.classList.remove('active');
+    shelfWrap.style.display = '';
+    radioWrap.classList.remove('show');
+  } else {
+    radioBtn.classList.add('active','radio-on');
+    tapeBtn.classList.remove('active');
+    shelfWrap.style.display = 'none';
+    radioWrap.classList.add('show');
+    if (!document.getElementById('stationList').children.length) {
+      loadGenreStations('turkish');
+    }
+  }
+}
+
+function selectGenre(el, genre) {
+  document.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('radioSearchInput').value = '';
+  loadGenreStations(genre);
+}
+
+const GENRE_QUERY = {
+  turkish: { tag: 'turkish', country: 'Turkey' },
+  pop: { tag: 'pop' },
+  rock: { tag: 'rock' },
+  jazz: { tag: 'jazz' },
+  electronic: { tag: 'electronic' },
+  classical: { tag: 'classical' },
+  news: { tag: 'news' }
+};
+
+async function tryFetchJson(path) {
+  for (const server of RADIO_SERVERS) {
+    try {
+      const res = await fetch(server + path, { headers: { 'User-Agent': 'RetroBoombox/1.0' } });
+      if (res.ok) { radioServer = server; return await res.json(); }
+    } catch (e) { /* try next server */ }
+  }
+  return null;
+}
+
+function showRadioStatus(txt) {
+  const st = document.getElementById('radioStatus');
+  st.textContent = txt;
+  st.classList.add('show');
+}
+function hideRadioStatus() {
+  document.getElementById('radioStatus').classList.remove('show');
+}
+
+async function loadGenreStations(genre) {
+  showRadioStatus('📡 İstasyonlar yükleniyor...');
+  document.getElementById('stationList').innerHTML = '';
+  const q = GENRE_QUERY[genre] || { tag: genre };
+  let path = `/json/stations/bytag/${encodeURIComponent(q.tag)}?limit=40&hidebroken=true&order=clickcount&reverse=true`;
+  if (q.country) {
+    path = `/json/stations/search?country=${encodeURIComponent(q.country)}&limit=40&hidebroken=true&order=clickcount&reverse=true`;
+  }
+  const data = await tryFetchJson(path);
+  renderStations(data);
+}
+
+async function searchStations() {
+  const term = document.getElementById('radioSearchInput').value.trim();
+  if (!term) return;
+  document.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active'));
+  showRadioStatus('🔍 "' + term + '" aranıyor...');
+  document.getElementById('stationList').innerHTML = '';
+  const path = `/json/stations/search?name=${encodeURIComponent(term)}&limit=40&hidebroken=true&order=clickcount&reverse=true`;
+  const data = await tryFetchJson(path);
+  renderStations(data);
+}
+
+function renderStations(data) {
+  const list = document.getElementById('stationList');
+  if (!data || !data.length) {
+    showRadioStatus('😕 İstasyon bulunamadı. Başka bir terim dene.');
+    return;
+  }
+  hideRadioStatus();
+  list.innerHTML = '';
+  data.forEach(st => {
+    if (!st.url_resolved && !st.url) return;
+    const card = document.createElement('div');
+    card.className = 'station-card';
+    card.dataset.src = st.url_resolved || st.url;
+    card.dataset.name = st.name || 'İstasyon';
+    const meta = [st.country, st.bitrate ? st.bitrate + 'kbps' : null].filter(Boolean).join(' • ');
+    const favHtml = st.favicon ? `<img src="${st.favicon}" onerror="this.parentNode.innerHTML='📻'">` : '📻';
+    card.innerHTML = `
+      <div class="station-fav">${favHtml}</div>
+      <div class="station-info">
+        <div class="station-name">${escapeHtml(st.name || 'İstasyon')}</div>
+        <div class="station-meta">${escapeHtml(meta || '—')}</div>
+      </div>
+      <div class="station-playing-icon">▶</div>
+    `;
+    card.addEventListener('click', () => playStation(card));
+    list.appendChild(card);
+  });
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function playStation(card) {
+  document.querySelectorAll('.station-card').forEach(c => c.classList.remove('now-playing'));
+  card.classList.add('now-playing');
+  currentStationCard = card;
+  playStream(card.dataset.src, card.dataset.name);
+}
+
+function playStream(src, name, silentErrors) {
+  isRadioStream = true;
+  cur = { dataset: { name: name } };
+
+  aud.pause();
+  aud.src = src;
+  aud.load();
+
+  setSt('📻 RADYO: ' + name, 'play');
+  document.getElementById('pw').classList.remove('show'); // live stream has no fixed duration
+
+  initCtx();
+  if (actx && actx.state === 'suspended') actx.resume();
+  aud.play().catch(e => {
+    if (!silentErrors) showRadioStatus('⚠️ Bu istasyon çalınamadı, başka bir tane dene.');
+  });
+
+  document.getElementById('spkL').classList.add('pulse');
+  document.getElementById('spkR').classList.add('pulse');
+  applyVol(+document.getElementById('vs').value);
+
+  document.getElementById('tn').textContent = '📻 ' + name;
+}
+
+// ── FAVORITE STATIONS ──
+function playFavStation(el) {
+  // toggle off if same station playing
+  if (isRadioStream && el.classList.contains('now-playing')) {
+    stopAudio();
+    el.classList.remove('now-playing');
+    el.querySelector('.fav-play-icon').textContent = '▶';
+    return;
+  }
+  // clear all fav highlights
+  document.querySelectorAll('.fav-station').forEach(s => {
+    s.classList.remove('now-playing');
+    s.querySelector('.fav-play-icon').textContent = '▶';
+  });
+  document.querySelectorAll('.station-card').forEach(c => c.classList.remove('now-playing'));
+
+  el.classList.add('now-playing');
+  el.querySelector('.fav-play-icon').textContent = '▶';
+
+  playStream(el.dataset.src, el.dataset.name, false);
+}
+</script>
+
+
+
+</body>
+</html>
